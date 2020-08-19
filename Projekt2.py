@@ -45,7 +45,7 @@ def generator() -> list:
 
 def hadani() -> list:
     while True:
-        hadane_cislo = input("Zadajte 4mistne cislo: ")
+        hadane_cislo = input("Zadejte 4mistne cislo: ")
         if len(hadane_cislo) == 4 and hadane_cislo.isdigit():
             break
         else:
