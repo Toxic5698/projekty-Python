@@ -20,7 +20,8 @@ print(ODD + "\n"
 def main() -> None:
     # generovani cisla
     skryte_cislo = generator()
-    # print(skryte_cislo)
+    start = time.time()
+    print(skryte_cislo)
 
     # hadani
     pocet_pokusu = 0
@@ -30,14 +31,17 @@ def main() -> None:
         hadane_cislo = hadani()
         konec_hry = porovnani(skryte_cislo, hadane_cislo)
         if konec_hry == 4:
-            print(f'Vyborne, konec hry. Pocet pokusu {pocet_pokusu}.')
+            end = time.time()
+            print(f'Vyborne, konec hry. {pocet_pokusu} pokusu za {round(end - start)} sekund.')
             break
         else:
             continue
 
 def generator() -> list:
-    skryte_cislo = [int(i) for i in str(random.randrange(1111,9999,1))]
-    return skryte_cislo
+    skryte_cislo = set()
+    while len(skryte_cislo) < 4:
+        skryte_cislo.add(random.randint(0, 9))
+    return list(skryte_cislo)
 
 def hadani() -> list:
     while True:
@@ -60,7 +64,7 @@ def porovnani(skryte_cislo: list, hadane_cislo: list) -> int:
             porovnani_bulls += 1
         a += 1
     for hadane in skryte_cislo:
-        if hadane_cislo[b] in skryte_cislo:
+        if skryte_cislo[b] in hadane_cislo:
             porovnani_cows += 1
         b += 1
     print(f'{porovnani_bulls} bulls, {porovnani_cows - porovnani_bulls} cows!')
