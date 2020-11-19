@@ -1,4 +1,4 @@
-# Projekt 3 - parser
+# Projekt 3 - election parser
 
 import requests
 import sys
@@ -9,6 +9,7 @@ import csv
 def hlavni() -> None:
     # ziskani odkazu
     odpoved = vytvor_pozadavek(url)
+    print("ziskavam data...")
     parsered = zpracuj_pozadavek(odpoved.text)
     odkazy = vypis_odkazu(parsered)
     
@@ -26,6 +27,7 @@ def hlavni() -> None:
         data.append(obec)
     
     # zapis do csv
+    soubor = "volby2017." + nazev_okresu(parsered_zahlavi) + ".csv"
     if zapis_csv(soubor, data, zahlavi_csv):
         print(f'zapsano do souboru: {soubor}')
     else:
@@ -34,18 +36,28 @@ def hlavni() -> None:
 
 # pozadavek na server
 def vytvor_pozadavek(url: str) -> requests.models.Response:
-    with requests.Session() as se:
-        return se.get(url)
-    
+    try:
+        
+        with requests.Session() as se:
+            return se.get(url)
+    except:
+        print("spatny link")
+        sys.exit()
+        
     
 # zpracovat odpoved
 def zpracuj_pozadavek(odpoved: str) -> bs:
     return bs(odpoved, "html.parser")
 
 
-# ziskani odkazu
+# ziskani nazvu okresu 
+def nazev_okresu(data: bs) -> str:
+    okres = data.find_all("h3")[1].text.strip().replace("Okres: ", "")
+    return okres
+
+
+# ziskani listu s odkazy
 def vypis_odkazu(data: bs) -> list:
-    print("zpracovani odkazu")
     list_odkazu = []
     tables = data.find_all("table", {"class": "table"})
     for i in tables:
@@ -63,7 +75,6 @@ def vypis_odkazu(data: bs) -> list:
 
 # zpracovani zahlavi
 def zahlavi(data: bs) -> list:
-    print("zpracovani zahlavi")
     list_zahlavi = ["Obec", "Volici v seznamu", "Vydanych obalek", "Platnych hlasu"]
     tables = data.find_all("table", {"class": "table"})
     for i in tables:
@@ -78,8 +89,7 @@ def zahlavi(data: bs) -> list:
 
 # zpracovani udaju z jednotlivych obci    
 def zpracovani_obce(data: bs) -> list:
-    list_obce = [] #'Kod', 'Obec', 'Volici v seznamu', 'Vydanych obalek', 'Platnych hlasu', 'Občanská demokratická strana'...
-    #kod = data.find(
+    list_obce = []
     obec = data.find_all("h3")[2].text.strip().replace("Obec: ", "")
     volici = data.find("td", {"headers": "sa2"}).text
     obalky = data.find("td", {"headers": "sa3"}).text
@@ -102,7 +112,7 @@ def zapis_csv(soubor: str, data: list, zahlavi: list) -> bool:
         zapisovac = csv.DictWriter(csv_s, fieldnames=zahlavi)
         zapisovac.writeheader()
         for index, radek in enumerate(data):
-            zapisovac.writerow( #'Kod', 'Obec', 'Volici v seznamu', 'Vydanych obalek', 'Platnych hlasu', 'Občanská demokratická strana'...
+            zapisovac.writerow( # 'Obec', 'Volici v seznamu', 'Vydanych obalek', 'Platnych hlasu', 'Občanská demokratická strana'...
             {
                 "Obec": data[index][0][0],
                 "Volici v seznamu": data[index][0][1],
@@ -139,7 +149,9 @@ def zapis_csv(soubor: str, data: list, zahlavi: list) -> bool:
     return True
 
 
-url = sys.argv[1]
-soubor = sys.argv[2]    
-hlavni()
+url = sys.argv[1]   
+
+if __name__ == '__main__':
+    hlavni()
+
 
