@@ -1,4 +1,4 @@
-# Projekt 3 - election parser
+# Projekt 3 - election scraper
 
 import requests
 import sys
@@ -37,7 +37,6 @@ def hlavni() -> None:
 # pozadavek na server
 def vytvor_pozadavek(url: str) -> requests.models.Response:
     try:
-        
         with requests.Session() as se:
             return se.get(url)
     except:
